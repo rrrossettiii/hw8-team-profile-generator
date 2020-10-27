@@ -22,7 +22,7 @@ const promptQuestions = [
         message: 'Enter your Name: ',
         validate: employeeName => {
             if (employeeName.length < 1){
-                return console.log('\nA valid name is required to proceed.');
+                return console.log('\n\nA valid name is required to proceed.');
             }
         return true;}
     },
@@ -32,7 +32,7 @@ const promptQuestions = [
         message: 'Enter your Email: ',
         validate: employeeEmail => {
             if (!employeeEmail.includes('@') && !employeeEmail.includes('.com')){
-                return console.log('\nA valid email is required to proceed.');
+                return console.log('\n\nA valid email is required to proceed.');
             }
         return true;}
     },
@@ -54,7 +54,7 @@ async function init() {
             message: '',
             validate: response => {
                 if (response.length < 1){
-                    return console.log('');
+                    return console.log('\n\n');
                 }
                 return;
             }
@@ -71,7 +71,7 @@ async function init() {
             },
             validate: response => {
                 if (response.length < 1){
-                    return console.log('');
+                    return console.log('\n\nPlease enter a valid username.');
                 }
                 return;
             }
@@ -82,10 +82,18 @@ async function init() {
         const specialInfo = await inquirer.prompt({
             type: 'input',
             name: 'info',
-            message: '',
+            message: 'Enter work phone number: ',
+            transformer: (a,b) => {
+                    var cleaned = ('' + a).replace(/\D/g, '')
+                    var match = [`${a[a.length]}`, ]
+                    if (match) {
+                      return '(' + match[1] + ') ' + match[2] + '-' + match[3]
+                    }
+                    return b
+            },
             validate: response => {
                 if (response.length < 1){
-                    return console.log('');
+                    return console.log('\n\nPlease enter valid phone number.');
                 }
                 return;
             }

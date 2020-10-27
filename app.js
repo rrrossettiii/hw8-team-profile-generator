@@ -10,32 +10,47 @@ const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
 
-
-// Write code to use inquirer to gather information about the development team members,
 // and to create objects for each team member (using the correct classes as blueprints!)
 
 // Inquirer Prompts;
 const promptQuestions = [
+    // - Name?;
     {
         type: 'input',
         name: 'name',
         message: 'Enter your Name: ',
         validate: employeeName => {
             if (employeeName.length < 1){
-                return console.log('\n\nA valid name is required to proceed.');
+                return 'A valid name is required to proceed.';
             }
         return true;}
     },
+    // - Pronouns?;
+    {
+        type: 'checkbox',
+        name: 'pronouns',
+        message: 'Select (all) pronouns you prefer: ',
+        choices: ['They/them', 'She/her', 'He/him'],
+        validate: response => {
+            if(response.length < 1){
+                return 'Please select at least one.';
+            }
+        return true;
+        }
+    },
+    // - Email?;
     {
         type: 'input',
         name: 'email',
         message: 'Enter your Email: ',
+        // - email includes '@' and '.com';
         validate: employeeEmail => {
             if (!employeeEmail.includes('@') && !employeeEmail.includes('.com')){
-                return console.log('\n\nA valid email is required to proceed.');
+                return 'A valid email is required to proceed.';
             }
         return true;}
     },
+    // - Role?;
     {
         type: 'list',
         name: 'role',
@@ -44,67 +59,89 @@ const promptQuestions = [
     },
 ]
 
-async function init() {
-    const employeeInfo = await inquirer.prompt(promptQuestions)
-    console.log(employeeInfo.role);
+// Per-Role Questions;
+async function specialQuestions(employeeInfo){
+    // - Intern;
     if (employeeInfo.role == 'Intern'){
+        // - - School?;
         const specialInfo = await inquirer.prompt({
             type: 'input',
             name: 'info',
-            message: '',
+            message: 'Enter your school: ',
             validate: response => {
                 if (response.length < 1){
-                    return console.log('\n\n');
+                    return 'Please enter valid school.';
                 }
-                return;
+                return true;
             }
         })
         return specialInfo;
-    }
-    if (employeeInfo.role == 'Engineer'){
+    } 
+    // - Engineer;
+    else if (employeeInfo.role == 'Engineer'){
+        // - - GitHub Username?;
         const specialInfo = await inquirer.prompt({
             type: 'input',
             name: 'info',
             message: 'Enter your GitHub username: ',
+            // - aesthetic fun!;
             transformer: function(a,b) {
                 return `${'@' + a}`
             },
             validate: response => {
                 if (response.length < 1){
-                    return console.log('\n\nPlease enter a valid username.');
+                    return 'Please enter a valid username.';
                 }
-                return;
+                return true;
             }
         })
         return specialInfo;
     }
-    if (employeeInfo.role == 'Manager'){
+    // - Manager;
+    else if (employeeInfo.role == 'Manager'){
+        // - - Work Telephone?
         const specialInfo = await inquirer.prompt({
             type: 'input',
             name: 'info',
             message: 'Enter work phone number: ',
-            transformer: (a,b) => {
-                    var cleaned = ('' + a).replace(/\D/g, '')
-                    var match = [`${a[a.length]}`, ]
-                    if (match) {
-                      return '(' + match[1] + ') ' + match[2] + '-' + match[3]
-                    }
-                    return b
+            // - this shows the user the output (formatted) string as we wil use it;
+            transformer: (input) => {
+                    const areaCode = input.substring(0,3);
+                    const middle = input.substring(3,6);
+                    const last = input.substring(6);
+
+                    if(input.length > 10){return 'TOO LONG'}
+                    else if(input.length > 6){return `(${areaCode}) ${middle}-${last}`;}
+                    else if(input.length > 3){return `(${areaCode}) ${middle}`;}
+                    else if(input.length > 0){return `(${areaCode})`;}
+                    else {return input};
             },
             validate: response => {
-                if (response.length < 1){
-                    return console.log('\n\nPlease enter valid phone number.');
+                // - this ensures the string is only numbers and 10 digits long;
+                if (isNaN(response) || response.length != 10){
+                    return 'Please enter valid phone number.';
                 }
-                return;
+                return true;
             }
         })
         return specialInfo;
     }
-    Object.assign(employeeInfo, {info: `${specialInfo.info}`});
-    console.log(employeeInfo);
 }
 
-init()
+// The Main Function;
+async function init() {
+    // - main questions
+    const employeeInfo = await inquirer.prompt(promptQuestions)
+    // - welcomes role; runs the per-role questions; then appends their response to 'employeeInfo';
+    console.log(`\nWelcome ${employeeInfo.role}`);
+    const specialInfo = await specialQuestions(employeeInfo)
+    Object.assign(employeeInfo, {info: `${specialInfo.info}`});
+    // console.log(employeeInfo);
+}
+
+// Start the Main Function;
+init();
+
 // After the user has input all employees desired, call the `render` function (required
 // above) and pass in an array containing all employee objects; the `render` function will
 // generate and return a block of HTML including templated divs for each employee!

@@ -14,7 +14,7 @@ const render = require("./lib/htmlRenderer");
 
 // Inquirer Prompts;
 const promptQuestions = [
-    // - Name?;
+    // -- Name?;
     {
         type: 'input',
         name: 'name',
@@ -25,7 +25,7 @@ const promptQuestions = [
             }
         return true;}
     },
-    // - Pronouns?;
+    // -- Pronouns?;
     {
         type: 'checkbox',
         name: 'pronouns',
@@ -38,7 +38,7 @@ const promptQuestions = [
         return true;
         }
     },
-    // - Email?;
+    // -- Email?;
     {
         type: 'input',
         name: 'email',
@@ -50,7 +50,7 @@ const promptQuestions = [
             }
         return true;}
     },
-    // - Role?;
+    // -- Role?;
     {
         type: 'list',
         name: 'role',
@@ -61,12 +61,12 @@ const promptQuestions = [
 
 // Per-Role Questions;
 async function specialQuestions(employeeInfo){
-    // - Intern;
+    // -- Intern;
     if (employeeInfo.role == 'Intern'){
-        // - - School?;
+        // --- School?;
         const specialInfo = await inquirer.prompt({
             type: 'input',
-            name: 'info',
+            name: 'school',
             message: 'Enter your school: ',
             validate: response => {
                 if (response.length < 1){
@@ -77,14 +77,14 @@ async function specialQuestions(employeeInfo){
         })
         return specialInfo;
     } 
-    // - Engineer;
+    // -- Engineer;
     else if (employeeInfo.role == 'Engineer'){
-        // - - GitHub Username?;
+        // --- GitHub Username?;
         const specialInfo = await inquirer.prompt({
             type: 'input',
-            name: 'info',
+            name: 'usernameGH',
             message: 'Enter your GitHub username: ',
-            // - aesthetic fun!;
+            // -- aesthetic fun!;
             transformer: function(a,b) {
                 return `${'@' + a}`
             },
@@ -97,14 +97,14 @@ async function specialQuestions(employeeInfo){
         })
         return specialInfo;
     }
-    // - Manager;
+    // -- Manager;
     else if (employeeInfo.role == 'Manager'){
-        // - - Work Telephone?
+        // --- Work Telephone?;
         const specialInfo = await inquirer.prompt({
             type: 'input',
-            name: 'info',
+            name: 'workPhone',
             message: 'Enter work phone number: ',
-            // - this shows the user the output (formatted) string as we wil use it;
+            // -- this shows the user the output (formatted) string as we wil use it;
             transformer: (input) => {
                     const areaCode = input.substring(0,3);
                     const middle = input.substring(3,6);
@@ -117,7 +117,7 @@ async function specialQuestions(employeeInfo){
                     else {return input};
             },
             validate: response => {
-                // - this ensures the string is only numbers and 10 digits long;
+                // -- this ensures the string is only numbers and 10 digits long;
                 if (isNaN(response) || response.length != 10){
                     return 'Please enter valid phone number.';
                 }
@@ -129,18 +129,19 @@ async function specialQuestions(employeeInfo){
 }
 
 // The Main Function;
-async function init() {
-    // - main questions
+async function addEmployee() {
+    // - runs main questions;
     const employeeInfo = await inquirer.prompt(promptQuestions)
     // - welcomes role; runs the per-role questions; then appends their response to 'employeeInfo';
     console.log(`\nWelcome ${employeeInfo.role}`);
     const specialInfo = await specialQuestions(employeeInfo)
     Object.assign(employeeInfo, {info: `${specialInfo.info}`});
+    console.log('\n\n+ Success! Employee added +\n\n');
     // console.log(employeeInfo);
 }
 
 // Start the Main Function;
-init();
+addEmployee();
 
 // After the user has input all employees desired, call the `render` function (required
 // above) and pass in an array containing all employee objects; the `render` function will

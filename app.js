@@ -135,8 +135,8 @@ async function addEmployee() {
     // - welcomes role; runs the per-role questions; then appends their response to 'employeeInfo';
     console.log(`\nWelcome ${employeeInfo.role}`);
     const specialInfo = await specialQuestions(employeeInfo)
-    Object.assign(employeeInfo, {info: `${specialInfo.info}`});
-    console.log('\n\n+ Success! Employee added +\n\n');
+    Object.assign(employeeInfo, specialInfo);
+    console.log('\n\n+Success, employee added+\n\n');
     // console.log(employeeInfo);
 }
 
